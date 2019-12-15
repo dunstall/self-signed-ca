@@ -1,7 +1,7 @@
 # OpenSSL CA config file shared components.
 
 [ CA_root ]
-dir               = /home/andy/self-signed-ca/root/ca  # TODO
+dir               = root/ca
 # Certificate output dir.
 certs             = $dir/certs
 crl_dir           = $dir/crl
@@ -36,7 +36,7 @@ preserve          = no
 policy            = policy_strict
 
 [ CA_intermediate ]
-dir               = /home/andy/self-signed-ca/intermediate/ca  # TODO
+dir               = intermediate/ca
 # Certificate output dir.
 certs             = $dir/certs
 crl_dir           = $dir/crl
@@ -105,7 +105,7 @@ string_mask         = utf8only
 default_md          = sha256
 
 # Extension to add when the -x509 option is used.
-x509_extensions     = v3_ca
+x509_extensions     = root_ca_x509v3
 
 [ req_distinguished_name ]
 countryName            = Country Name (2 letter code)
@@ -116,15 +116,14 @@ organizationalUnitName = Organizational Unit Name
 commonName             = Common Name
 emailAddress           = Email Address
 
-[ v3_ca ]
-# Extensions for a typical CA (`man x509v3_config`).
+[ root_ca_x509v3 ]
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer
 # Certificate is a CA certificate.
 basicConstraints = critical, CA:true
 keyUsage = critical, digitalSignature, cRLSign, keyCertSign
 
-[ v3_intermediate_ca ]
+[ intermediate_ca_x509v3 ]
 # Extensions for a typical intermediate CA (`man x509v3_config`).
 subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid:always,issuer

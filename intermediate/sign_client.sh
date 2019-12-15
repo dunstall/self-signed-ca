@@ -1,16 +1,17 @@
 #!/bin/bash
 
-csr = $1
-cert = $2
+csr=$1
+cert=$2
 
-# TODO config
-
-# TODO server cert
-      # -in intermediate/csr/www.example.com.csr.pem \
+# Sign the CSR to create a client certificate.
 openssl ca -config intermediate/openssl.cnf \
       -extensions client_cert -days 375 -notext -md sha256 \
       -in $csr \
-      -out $cert \
-chmod 444 intermediate/ca/certs/www.example.com.cert.pem
+      -out $cert
+chmod 444 $cert
 
-# TODO verify
+# Display the certificate.
+openssl x509 -noout -text -in $cert
+
+# Verify the certificate against the certificate chain (CA bundle).
+openssl verify -CAfile intermediate/ca/certs/ca-chain.cert.pem $cert
