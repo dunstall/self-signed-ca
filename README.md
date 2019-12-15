@@ -1,55 +1,69 @@
 # Self Signed CA
-Create a root and intermediate certificate authorities (CA) to sign client and
-server certificates.
+Create a send signed certificate authority (CA) to sign client and server certificates.
+This is very useful for testing.
 
-## Create root CA (self-signed)
-This will first create a 4096 bit RSA private key which will prompt for a
-password to protect the key (with AES256).
-
-Next generates a CSR which prompts for the distingiushed name (DN). The root DN
-and intermediate DN must have the same country name, state and organization name
-(see openssl.cnf/policy\_strict).
-
-Once created the certificate is displayed and should be checked that the details
-are correct.
-
-The root CA should only be used to sign the intermediate CA certificates not
-client or server certificates (which is handled by the intermediate CAs). This
-is for security as the root CA is less used and kept offline so even if an
-intermediate CA is compromised the root is safe.
+## Root CA
+Create a root CA which will be self signed. This is used to sign the intermediate CA
+(which will sign the server and client certificates). The root CA must not sign
+server and client certificates for security as if an intermediate CA is compromised
+other intermediate CAs signed by the root are still ok.
 
 ```
   $ sudo ./root/create.sh
 ```
 
-## Create intermediate CA (signed by root CA)
-The intermediate CA is used to sign client and server certificates.
+This will prompt for the distinguished name (DN). The country (C), organization (O) and state (ST)
+must be the same in the intermediate CAs.
 
-This will again create a private key then prompt for the distingiushed name (DN)
-for the CSR which should have the data country name, state and organization name
-as the root CA.
+## Intermediate CA
+The intermediate CA, signed by the root CA, is used to sign client and server certificates.
 
 ```
   $ sudo ./intermediate/create.sh
 ```
 
+This will prompt for the distinguished name (DN). The country (C), organization (O) and state (ST)
+must be the same in the root CA. This command will also verify the created certificate
+against the root CA.
+
 This will output the CA certificate chain (CA bundle) with the root and
-intermediate certificates, which is required to trust the intermediate CA out to
-intermediate/ca/certs/ca-chain.cert.pem.
+intermediate certificates to ```intermediate/ca/certs/ca-chain.cert.pem```.
 
 # Sign a certificate
-To sign either a server or client certificate use:
+To sign either a server or client certificate from the CSR use:
 ```
-  $sudo ./intermediate/sign_server.sh <CSR path> <output cert path>
+  $sudo ./intermediate/sign_[server|client].sh <CSR path> <output cert path>
 ```
-or
-```
-  $sudo ./intermediate/sign_client.sh <CSR path> <output cert path>
-```
+This will also verify the cerfificate agains the certificate chain (intermediate and root
+CAs).
 
-Such as:
+For example:
 ```
-  $sudo ./intermediate/sign_client.sh \
-      intermediate/ca/csr/www.example.com.csr.pem \
-      intermediate/ca/certs/www.example.com.cert.pem
+  $ sudo ./root/create.sh
+  ...
+  Country Name (2 letter code) []:GB
+  State or Province Name []:England
+  Locality Name []:England
+  Organization Name []:Test Ltd
+  Organizational Unit Name []:
+  Common Name []:Root CA
+  Email Address []:
+  ...
+  
+  $ ./intermediate/create.sh
+  ...
+  Country Name (2 letter code) []:GB
+  State or Province Name []:England
+  Locality Name []:England
+  Organization Name []:Test Ltd
+  Organizational Unit Name []:
+  Common Name []:CA
+  Email Address []:
+  ...
+  
+  # Create a CSR for a server certificate.
+  $ openssl req -new -newkey rsa:2048 -nodes -keyout server.key -out server.csr
+  
+  # Sign the CSR with the intermediate CA.
+  $ ./intermediate/sign_server.sh server.csr server.cert.pem
 ```
