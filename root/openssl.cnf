@@ -1,0 +1,4 @@
+[ ca ]
+default_ca = CA_root
+
+.include openssl.cnf

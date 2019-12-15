@@ -1,0 +1,6 @@
+# OpenSSL root CA config file.
+
+[ ca ]
+default_ca = CA_intermediate
+
+.include openssl.cnf

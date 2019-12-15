@@ -1,0 +1,167 @@
+# OpenSSL CA config file shared components.
+
+[ CA_root ]
+dir               = /home/andy/self-signed-ca/root/ca  # TODO
+# Certificate output dir.
+certs             = $dir/certs
+crl_dir           = $dir/crl
+# New certificates dir.
+new_certs_dir     = $dir/newcerts
+# Index file.
+database          = $dir/index.txt
+serial            = $dir/serial
+# Random number file.
+RANDFILE          = $dir/private/.rand
+
+# Root private key and root certificate.
+private_key       = $dir/private/ca.key.pem
+certificate       = $dir/certs/ca.cert.pem
+
+# Certificate Revocation Lists (CRL).
+crlnumber         = $dir/crlnumber
+crl               = $dir/crl/ca.crl.pem
+crl_extensions    = crl_ext
+default_crl_days  = 30
+
+# Default message digest algorithm.
+default_md        = sha256
+
+name_opt          = ca_default
+cert_opt          = ca_default
+default_days      = 375
+# Use the DN order of the policy rather than the CSR.
+preserve          = no
+# Use strict policy for root CA signatures as root only used to create
+# intermediate CAs.
+policy            = policy_strict
+
+[ CA_intermediate ]
+dir               = /home/andy/self-signed-ca/intermediate/ca  # TODO
+# Certificate output dir.
+certs             = $dir/certs
+crl_dir           = $dir/crl
+# New certificates dir.
+new_certs_dir     = $dir/newcerts
+# Index file.
+database          = $dir/index.txt
+serial            = $dir/serial
+# Random number file.
+RANDFILE          = $dir/private/.rand
+
+# Root private key and root certificate.
+private_key       = $dir/private/ca.key.pem
+certificate       = $dir/certs/ca.cert.pem
+
+# Certificate Revocation Lists (CRL).
+crlnumber         = $dir/crlnumber
+crl               = $dir/crl/ca.crl.pem
+crl_extensions    = crl_ext
+default_crl_days  = 30
+
+# Default message digest algorithm.
+default_md        = sha256
+
+name_opt          = ca_default
+cert_opt          = ca_default
+default_days      = 375
+# Use the DN order of the policy rather than the CSR.
+preserve          = no
+# Use strict policy for root CA signatures as root only used to create
+# intermediate CAs.
+policy            = policy_relaxed
+
+
+
+# Contains variables corresponding to DN (distinguished name) fields.
+# If match then field must match same field in CA certificate.
+#
+# Allow CA to sign a strict set of DN attributes. This policy is used by the
+# root CA to sign intermediate certificates (which most fields match the root
+# CA).
+[ policy_strict ]
+countryName             = match
+stateOrProvinceName     = match
+organizationName        = match
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+# Allow CA to sign wider range of certificate DN attributes. This policy is used
+# by the intermediate CA to sign server certificates.
+[ policy_relaxed ]
+countryName             = optional
+stateOrProvinceName     = optional
+localityName            = optional
+organizationName        = optional
+organizationalUnitName  = optional
+commonName              = supplied
+emailAddress            = optional
+
+[ req ]
+default_bits        = 2048
+distinguished_name  = req_distinguished_name
+string_mask         = utf8only
+
+default_md          = sha256
+
+# Extension to add when the -x509 option is used.
+x509_extensions     = v3_ca
+
+[ req_distinguished_name ]
+countryName            = Country Name (2 letter code)
+stateOrProvinceName    = State or Province Name
+localityName           = Locality Name
+0.organizationName     = Organization Name
+organizationalUnitName = Organizational Unit Name
+commonName             = Common Name
+emailAddress           = Email Address
+
+[ v3_ca ]
+# Extensions for a typical CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+# Certificate is a CA certificate.
+basicConstraints = critical, CA:true
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ v3_intermediate_ca ]
+# Extensions for a typical intermediate CA (`man x509v3_config`).
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+# pathlen indicates the number of CAs in the chain, so this must be the lowest
+# level CA.
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ client_cert ]
+# Extensions for client certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = client, email
+nsComment = "OpenSSL Generated Client Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth, emailProtection
+
+[ server_cert ]
+# Extensions for server certificates (`man x509v3_config`).
+basicConstraints = CA:FALSE
+nsCertType = server
+nsComment = "OpenSSL Generated Server Certificate"
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer:always
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+
+[ crl_ext ]
+# Extension for CRLs (`man x509v3_config`).
+authorityKeyIdentifier=keyid:always
+
+[ ocsp ]
+# Extension for OCSP signing certificates (`man ocsp`).
+basicConstraints = CA:FALSE
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+keyUsage = critical, digitalSignature
+extendedKeyUsage = critical, OCSPSigning
+
